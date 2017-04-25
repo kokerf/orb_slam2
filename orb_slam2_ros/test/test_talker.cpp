@@ -2,8 +2,9 @@
 #include <vector>
 
 #include <opencv2/core/core.hpp>
-#include <opencv/cv.h>
+#include <opencv/cv.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/features2d/features2d.hpp>
 
 #include <ros/ros.h>
 #include <orb_slam2_msgs/Frame.h>
@@ -29,10 +30,10 @@ int main(int argc, char *argv[])
        cvtColor(img_rgb, img_gray, CV_RGBA2GRAY);
 
     cv::ORB orb(500, 1.2f, 8);
+
     std::vector<cv::KeyPoint> keypoints;
     cv::Mat descriptors;
-    orb.detect(img_gray, keypoints);
-    orb.compute(img_gray, keypoints, descriptors);
+    orb(img_gray, cv::Mat(), keypoints, descriptors);
 
     cv::Mat img_show;
     cv::drawKeypoints( img_rgb, keypoints, img_show, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT );

@@ -11,8 +11,16 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   orb_slam2_msgs
-  cv_bridge
+  #cv_bridge
 )
+
+find_package(OpenCV 2 REQUIRED)
+if(OpenCV_FOUND)
+    message("-- Find OpenCV in ${OpenCV_INCLUDE_DIRS}")
+    include_directories(${OpenCV_INCLUDE_DIRS})
+else()
+  message(FATAL_ERROR "-- Can Not Find OpenCV 2.4.3")
+endif()
 
 ###################################
 ## catkin specific configuration ##
@@ -40,6 +48,7 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
 )
 
 ## Declare a C++ executable
@@ -51,7 +60,9 @@ add_executable(orb_slam2_listener test/test_listener.cpp)
 ## Specify libraries to link a library or executable target against
 target_link_libraries(orb_slam2_talker
   ${catkin_LIBRARIES}
+  ${OpenCV_LIBRARIES}
 )
 target_link_libraries(orb_slam2_listener
   ${catkin_LIBRARIES}
+  ${OpenCV_LIBRARIES}
 )
