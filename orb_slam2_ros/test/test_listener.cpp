@@ -11,11 +11,12 @@ cv::Mat image;
 
 void listenerCallback(const orb_slam2_msgs::Frame& message)
 {
+    cv::Size size;
     std::vector<cv::KeyPoint> keypoints;
     std::vector<cv::Mat> descriptors;
     std::vector<uint16_t> depths;
     double time;
-    ORBSLAM2_Convertor::fromMessage(message, keypoints, descriptors, depths, time);
+    ORBSLAM2_Convertor::fromMessage(message, size, keypoints, descriptors, depths, time);
 
     cv::Mat image_with_keypoints;
     cv::drawKeypoints( image, keypoints, image_with_keypoints, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT );
@@ -23,7 +24,7 @@ void listenerCallback(const orb_slam2_msgs::Frame& message)
 
     ros::Time t;
     t.fromSec(time);
-    ROS_INFO("%ld", t.toNSec());
+    ROS_INFO("%ld rows:%d cols:%d", t.toNSec(), size.width, size.height);
     cv::waitKey(10);
 
 }

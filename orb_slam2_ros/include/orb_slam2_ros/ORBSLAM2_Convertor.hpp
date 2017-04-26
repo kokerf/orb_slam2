@@ -18,6 +18,7 @@ class ORBSLAM2_Convertor
 public:
     struct Frame
     {
+        cv::Size size;
         std::vector<cv::KeyPoint> keypoints;
         std::vector<uint16_t> depths;
         std::vector<cv::Mat> descriptors;
@@ -30,11 +31,12 @@ public:
     //! ===================================================
     //!             convert to struct Frame
     //! ===================================================
-    static bool toFrame(const std::vector<cv::KeyPoint>& keypoints, const cv::Mat& descriptors, const std::vector<uint16_t>& depths, Frame& frame)
+    static bool toFrame(const cv::Size size, const std::vector<cv::KeyPoint>& keypoints, const cv::Mat& descriptors, const std::vector<uint16_t>& depths, Frame& frame)
     {
         uint16_t N = keypoints.size();
         assert( N == descriptors.rows && N == depths.size());
 
+        frame.size = size;
         frame.keypoints.resize(N);
         frame.depths.resize(N);
         frame.descriptors.resize(N);
@@ -48,11 +50,12 @@ public:
         return true;
     }
 
-    static bool toFrame(const std::vector<cv::KeyPoint>& keypoints, const cv::Mat& descriptors, const cv::Mat& img_depth, Frame& frame)
+    static bool toFrame(const cv::Size size, const std::vector<cv::KeyPoint>& keypoints, const cv::Mat& descriptors, const cv::Mat& img_depth, Frame& frame)
     {
         uint16_t N = keypoints.size();
         assert( N == descriptors.rows && img_depth.type() == CV_16UC1);
 
+        frame.size = size;
         frame.keypoints.resize(N);
         frame.depths.resize(N);
         frame.descriptors.resize(N);
@@ -126,8 +129,11 @@ public:
 
         message.header.stamp.fromSec(timestamp);
         message.header.frame_id = "ORB_SLAM2";
-        message.N = N;
 
+        message.rows = frame.size.width;
+        message.cols = frame.size.height;
+
+        message.N = N;
         message.keypoints.clear();
         message.descriptors.clear();
         message.depths.clear();
@@ -147,11 +153,11 @@ public:
         return true;
     }
 
-    static bool toMessage(const std::vector<cv::KeyPoint>& keypoints, const cv::Mat& descriptors, const cv::Mat& img_depth, const double timestamp,
+    static bool toMessage(const cv::Size size, const std::vector<cv::KeyPoint>& keypoints, const cv::Mat& descriptors, const cv::Mat& img_depth, const double timestamp,
         orb_slam2_msgs::Frame& message)
     {
         Frame frame;
-        toFrame(keypoints, descriptors, img_depth ,frame);
+        toFrame(size, keypoints, descriptors, img_depth ,frame);
         toMessage(frame, timestamp, message);
 
         return true;
@@ -206,6 +212,7 @@ public:
         uint16_t N = message.N;
         timestamp = message.header.stamp.toSec();
 
+        frame.size = cv::Size(message.rows, message.cols);
         frame.keypoints.resize(N);
         frame.depths.resize(N);
         frame.descriptors.resize(N);
@@ -221,11 +228,12 @@ public:
     }
 
     static bool fromMessage(const orb_slam2_msgs::Frame& message,
-        std::vector<cv::KeyPoint>& keypoints, std::vector<cv::Mat>& descriptors, std::vector<uint16_t>& depths, double& timestamp)
+        cv::Size& size, std::vector<cv::KeyPoint>& keypoints, std::vector<cv::Mat>& descriptors, std::vector<uint16_t>& depths, double& timestamp)
     {
         Frame frame;
         fromMessage(message, frame, timestamp);
 
+        size = frame.size;
         uint16_t N = message.N;
         keypoints.resize(N);
         descriptors.resize(N);

@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     {
         ros::Time t= ros::Time::now();
         orb_slam2_msgs::Frame msg_frame;
-        ORBSLAM2_Convertor::toMessage(keypoints, descriptors, img_depth , t.toSec(), msg_frame);
+        ORBSLAM2_Convertor::toMessage(cv::Size(img_gray.rows, img_gray.cols), keypoints, descriptors, img_depth , t.toSec(), msg_frame);
 
         chatter_pub.publish(msg_frame);
 
