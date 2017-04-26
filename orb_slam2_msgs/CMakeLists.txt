@@ -20,6 +20,7 @@ add_message_files(
   KeyPoint.msg
   Descriptor.msg
   Frame.msg
+  Config.msg
 )
 
 ## Generate added messages and services with any dependencies listed here

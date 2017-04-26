@@ -11,6 +11,7 @@
 
 #include <ros/ros.h>
 #include <orb_slam2_msgs/Frame.h>
+#include <orb_slam2_msgs/Config.h>
 
 class ORBSLAM2_Convertor
 {
@@ -72,6 +73,23 @@ public:
     //! ===================================================
     //!             convert to ROS message
     //! ===================================================
+    static bool toMessage(const uint16_t N, const float factor, const uint16_t levels, const uint16_t iniThFAST, const uint16_t minThFAST,
+        const double timestamp, const bool flag, orb_slam2_msgs::Config& message)
+    {
+        message.header.stamp.fromSec(timestamp);
+        message.header.frame_id = "ORB_SLAM2";
+
+        message.nFeatures = N;
+        message.scaleFactor = factor;
+        message.nLevels = levels;
+        message.iniThFAST = iniThFAST;
+        message.minThFAST = minThFAST;
+
+        message.flag = flag;
+
+        return true;
+    }
+
     static bool toMessage(const cv::KeyPoint& keypoint, orb_slam2_msgs::KeyPoint& message)
     {
         message.pt.x = keypoint.pt.x;
@@ -81,6 +99,7 @@ public:
         message.response = keypoint.response;
         message.octave = keypoint.octave;
         message.class_id = keypoint.class_id;
+
         return true;
     }
 
@@ -100,7 +119,7 @@ public:
         return true;
     }
 
-    static bool toMessage(const Frame& frame, const double& timestamp, orb_slam2_msgs::Frame& message)
+    static bool toMessage(const Frame& frame, const double timestamp, orb_slam2_msgs::Frame& message)
     {
         uint16_t N = frame.keypoints.size();
         assert( N == frame.descriptors.size() && N == frame.depths.size());
@@ -128,16 +147,34 @@ public:
         return true;
     }
 
-    static bool toMessage(const std::vector<cv::KeyPoint>& keypoints, const cv::Mat& descriptors, const cv::Mat& img_depth, const double& timestamp, orb_slam2_msgs::Frame& message)
+    static bool toMessage(const std::vector<cv::KeyPoint>& keypoints, const cv::Mat& descriptors, const cv::Mat& img_depth, const double timestamp,
+        orb_slam2_msgs::Frame& message)
     {
         Frame frame;
         toFrame(keypoints, descriptors, img_depth ,frame);
         toMessage(frame, timestamp, message);
+
+        return true;
     }
 
     //! ===================================================
     //!             convert from ROS message
     //! ===================================================
+    static bool fromMessage(const orb_slam2_msgs::Config& message,
+        uint16_t& N, float& factor, uint16_t& levels, uint16_t& iniThFAST, uint16_t& minThFAST, bool flag, double& timestamp)
+    {
+        timestamp = message.header.stamp.toSec();
+
+        N = message.nFeatures;
+        factor = message.scaleFactor;
+        levels = message.nLevels;
+        iniThFAST = message.iniThFAST;
+        minThFAST = message.minThFAST;
+        flag = message.flag;
+
+        return true;
+    }
+
     static bool fromMessage(const orb_slam2_msgs::KeyPoint& message, cv::KeyPoint& keypoint)
     {
         keypoint.pt.x = message.pt.x;
@@ -147,6 +184,7 @@ public:
         keypoint.response = message.response;
         keypoint.octave = message.octave;
         keypoint.class_id = message.class_id;
+
         return true;
     }
 
@@ -182,7 +220,8 @@ public:
         return true;
     }
 
-    static bool fromMessage(const orb_slam2_msgs::Frame& message, std::vector<cv::KeyPoint>& keypoints, std::vector<cv::Mat>& descriptors, std::vector<uint16_t>& depths, double& timestamp)
+    static bool fromMessage(const orb_slam2_msgs::Frame& message,
+        std::vector<cv::KeyPoint>& keypoints, std::vector<cv::Mat>& descriptors, std::vector<uint16_t>& depths, double& timestamp)
     {
         Frame frame;
         fromMessage(message, frame, timestamp);
@@ -197,6 +236,8 @@ public:
             descriptors[i] = frame.descriptors[i];
             depths[i] = frame.depths[i];
         }
+
+        return true;
     }
 };
 

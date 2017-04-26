@@ -59,3 +59,8 @@ target_link_libraries(orb_slam2_listener
   ${catkin_LIBRARIES}
   ${OpenCV_LIBRARIES}
 )
+
+install(DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  #PATTERN ".svn" EXCLUDE
+)
