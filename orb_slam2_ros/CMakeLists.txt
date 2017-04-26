@@ -11,16 +11,9 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   orb_slam2_msgs
-  #cv_bridge
 )
 
-find_package(OpenCV 2 REQUIRED)
-if(OpenCV_FOUND)
-    message("-- Find OpenCV in ${OpenCV_INCLUDE_DIRS}")
-    include_directories(${OpenCV_INCLUDE_DIRS})
-else()
-  message(FATAL_ERROR "-- Can Not Find OpenCV 2.4.3")
-endif()
+find_package(OpenCV 2.4 REQUIRED)
 
 ###################################
 ## catkin specific configuration ##

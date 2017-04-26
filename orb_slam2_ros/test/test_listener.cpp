@@ -21,7 +21,6 @@ void listenerCallback(const orb_slam2_msgs::Frame& message)
     cv::drawKeypoints( image, keypoints, image_with_keypoints, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT );
     cv::imshow("takler", image_with_keypoints);
 
-
     ros::Time t;
     t.fromSec(time);
     ROS_INFO("%ld", t.toNSec());
